@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocabulary Exam</title>
+<style>
+  :root{
+    --ink:#2b2a27;
+    --paper:#f4f1ea;
+    --paper-2:#eae5d8;
+    --rule:#cfc7b3;
+    --accent:#a6502b;
+    --accent-2:#3f6e5b;
+    --bad:#a6332b;
+    --good:#3f6e5b;
+    --serif:'Iowan Old Style','Palatino Linotype','Book Antiqua',Georgia,serif;
+    --sans:'Helvetica Neue',Arial,sans-serif;
+    --mono:'Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.5;
+  }
+  html, body{
+    width:100%;
+    overflow-x:hidden;
+  }
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+    padding:40px 24px 100px;
+    width:100%;
+  }
+  header{
+    text-align:center;
+    border-bottom:3px double var(--ink);
+    padding-bottom:18px;
+    margin-bottom:30px;
+  }
+  header .eyebrow{
+    font-family:var(--mono);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--accent);
+  }
+  header h1{
+    font-size:clamp(28px,5vw,42px);
+    margin:6px 0 4px;
+    font-weight:400;
+    letter-spacing:0.5px;
+  }
+  header .sub{
+    font-family:var(--sans);
+    font-size:13px;
+    color:#6b6759;
+  }
+  .name-line{
+    display:flex;
+    gap:24px;
+    justify-content:center;
+    margin-top:16px;
+    flex-wrap:wrap;
+    font-family:var(--sans);
+    font-size:13px;
+  }
+  .name-line input{
+    border:none;
+    border-bottom:1px solid var(--ink);
+    background:transparent;
+    font-family:var(--serif);
+    font-size:14px;
+    padding:2px 4px;
+    width:160px;
+    color:var(--ink);
+  }
+  .name-line input:focus{outline:none; border-bottom-color:var(--accent);}
+
+  section.part{
+    margin-bottom:48px;
+  }
+  .part-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:6px;
+  }
+  .part-num{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    padding:2px 8px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+  .part-title{
+    font-size:22px;
+    margin:0;
+    font-weight:400;
+  }
+  .part-instructions{
+    font-family:var(--sans);
+    font-size:13.5px;
+    color:#55503f;
+    margin:6px 0 22px;
+    padding-left:1px;
+  }
+
+  /* Matching part */
+  .match-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  @media (max-width:680px){
+    .match-grid{grid-template-columns:1fr;}
+    .wrap{padding:24px 14px 90px;}
+    header h1{font-size:26px;}
+    .name-line{flex-direction:column; align-items:center; gap:10px;}
+    .name-line input{width:200px;}
+    .part-title{font-size:19px;}
+    .word-item{
+      flex-wrap:wrap;
+      gap:8px 10px;
+    }
+    .word-item .label{
+      flex:1 1 100%;
+      order:1;
+    }
+    .word-item .num{order:0;}
+    .word-item select{
+      order:2;
+      margin-left:28px;
+      width:auto;
+      min-width:64px;
+      font-size:15px;
+      padding:7px 8px;
+    }
+    .tf-item{
+      flex-direction:column;
+      align-items:stretch;
+      gap:10px;
+    }
+    .tf-toggle{
+      align-self:flex-start;
+    }
+    .tf-toggle button{
+      padding:9px 18px;
+      font-size:13px;
+    }
+    .meanings-box{font-size:13.5px;}
+    button.cta{
+      padding:14px 22px;
+      font-size:14px;
+    }
+    .controls{
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      padding-bottom:env(safe-area-inset-bottom, 16px);
+    }
+    button.cta{width:100%; max-width:320px;}
+  }
+
+  @media (max-width:380px){
+    header h1{font-size:22px;}
+    .word-item .label{font-size:14.5px;}
+    .tf-item .label{font-size:14.5px;}
+  }
+  .word-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 10px;
+    border-bottom:1px solid var(--rule);
+  }
+  .word-item .num{
+    font-family:var(--mono);
+    font-size:12px;
+    width:18px;
+    color:#8c8670;
+  }
+  .word-item .label{
+    flex:1;
+    font-size:15.5px;
+  }
+  .word-item select{
+    font-family:var(--mono);
+    font-size:13px;
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    padding:5px 6px;
+    color:var(--ink);
+    width:54px;
+    -webkit-appearance:none;
+    appearance:none;
+    background-image:linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+    background-position: calc(100% - 12px) center, calc(100% - 7px) center;
+    background-size:5px 5px, 5px 5px;
+    background-repeat:no-repeat;
+    padding-right:22px;
+  }
+  .word-item.correct select{border-color:var(--good); background:#e4ede7;}
+  .word-item.incorrect select{border-color:var(--bad); background:#f2e2df;}
+
+  .meanings-box{
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:4px;
+    padding:14px 16px;
+    font-family:var(--sans);
+    font-size:13px;
+    color:#4d4938;
+  }
+  .meanings-box .mh{
+    font-family:var(--mono);
+    text-transform:uppercase;
+    font-size:10.5px;
+    letter-spacing:1.5px;
+    color:var(--accent);
+    margin-bottom:8px;
+  }
+  .meanings-box div.m-line{margin-bottom:5px;}
+  .meanings-box b{color:var(--ink);}
+
+  /* True False part */
+  .tf-item{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .tf-item .label{
+    font-size:15.5px;
+    flex:1;
+  }
+  .tf-item .num{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#8c8670;
+    margin-right:8px;
+  }
+  .tf-toggle{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .tf-toggle button{
+    font-family:var(--mono);
+    font-size:12px;
+    padding:6px 14px;
+    border:1px solid var(--rule);
+    background:var(--paper-2);
+    color:var(--ink);
+    border-radius:3px;
+    cursor:pointer;
+    letter-spacing:1px;
+  }
+  .tf-toggle button:hover{border-color:var(--accent);}
+  .tf-toggle button.selected{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .tf-item.correct .tf-toggle button.selected{background:var(--good); border-color:var(--good); color:#fff;}
+  .tf-item.incorrect .tf-toggle button.selected{background:var(--bad); border-color:var(--bad); color:#fff;}
+
+  /* footer / controls */
+  .controls{
+    position:sticky;
+    bottom:0;
+    background:linear-gradient(to top, var(--paper) 70%, transparent);
+    padding:24px 0 6px;
+    display:flex;
+    justify-content:center;
+    gap:14px;
+  }
+  button.cta{
+    font-family:var(--sans);
+    font-size:14px;
+    letter-spacing:0.5px;
+    padding:13px 30px;
+    border-radius:3px;
+    border:none;
+    cursor:pointer;
+  }
+  button.submit{background:var(--accent); color:#fff;}
+  button.submit:hover{background:#8c4423;}
+  button.reset{background:transparent; color:var(--ink); border:1px solid var(--ink);}
+  button.reset:hover{border-color:var(--accent); color:var(--accent);}
+
+  .score-banner{
+    display:none;
+    text-align:center;
+    margin:0 0 36px;
+    padding:22px;
+    border:2px solid var(--ink);
+    border-radius:6px;
+    background:var(--paper-2);
+  }
+  .score-banner.show{display:block;}
+  .score-banner .big{
+    font-size:40px;
+    font-family:var(--serif);
+  }
+  .score-banner .pct{
+    font-family:var(--mono);
+    color:var(--accent);
+    font-size:13px;
+    letter-spacing:1px;
+  }
+  .score-banner .note{
+    font-family:var(--sans);
+    font-size:12.5px;
+    color:#6b6759;
+    margin-top:6px;
+  }
+
+  ::selection{background:var(--accent); color:#fff;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">English Vocabulary Assessment</div>
+    <h1>Test 210–240</h1>
+    <div class="sub">Two parts · 31 items · matching &amp; true/false</div>
+    <div class="name-line">
+      <span>Name: <input type="text" id="studentName" placeholder="______________"></span>
+      <span>Date: <input type="text" id="studentDate" placeholder="______________"></span>
+    </div>
+  </header>
+
+  <div class="score-banner" id="scoreBanner">
+    <div class="big" id="scoreBig">0 / 31</div>
+    <div class="pct" id="scorePct">0%</div>
+    <div class="note">Correct answers are marked in green, incorrect in red.</div>
+  </div>
+
+  <!-- PART 1 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">PART 1</span>
+      <h2 class="part-title">Vocabulary Matching</h2>
+    </div>
+    <p class="part-instructions">Match each word (1–15) with its correct meaning (a–o) using the dropdown menu.</p>
+
+    <div class="match-grid">
+      <div id="matchList">
+        <div class="word-item" id="w-row-0"><span class="num">1.</span><span class="label">Intact</span>
+          <select id="w-sel-0"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-1"><span class="num">2.</span><span class="label">Booming population</span>
+          <select id="w-sel-1"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-2"><span class="num">3.</span><span class="label">Concern</span>
+          <select id="w-sel-2"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-3"><span class="num">4.</span><span class="label">Impose a fine</span>
+          <select id="w-sel-3"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-4"><span class="num">5.</span><span class="label">Outage</span>
+          <select id="w-sel-4"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-5"><span class="num">6.</span><span class="label">Destruction</span>
+          <select id="w-sel-5"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-6"><span class="num">7.</span><span class="label">Rarely</span>
+          <select id="w-sel-6"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-7"><span class="num">8.</span><span class="label">Preserve</span>
+          <select id="w-sel-7"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-8"><span class="num">9.</span><span class="label">Emerge from</span>
+          <select id="w-sel-8"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-9"><span class="num">10.</span><span class="label">Match</span>
+          <select id="w-sel-9"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-10"><span class="num">11.</span><span class="label">Involvement</span>
+          <select id="w-sel-10"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-11"><span class="num">12.</span><span class="label">Extensively</span>
+          <select id="w-sel-11"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-12"><span class="num">13.</span><span class="label">Exploitation</span>
+          <select id="w-sel-12"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-13"><span class="num">14.</span><span class="label">Employ</span>
+          <select id="w-sel-13"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+        <div class="word-item" id="w-row-14"><span class="num">15.</span><span class="label">Exceed</span>
+          <select id="w-sel-14"><option value="">–</option><option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option></select>
+        </div>
+      </div>
+      <div class="meanings-box">
+        <div class="mh">Meanings</div>
+        <div id="meaningsList">
+          <div class="m-line"><b>a.</b> to keep something safe and in good condition</div>
+          <div class="m-line"><b>b.</b> to use someone or something unfairly for advantage</div>
+          <div class="m-line"><b>c.</b> participation in an activity or event</div>
+          <div class="m-line"><b>d.</b> to be greater than; go beyond a limit</div>
+          <div class="m-line"><b>e.</b> not damaged or changed; whole</div>
+          <div class="m-line"><b>f.</b> a period when a service such as electricity or the internet is unavailable</div>
+          <div class="m-line"><b>g.</b> a feeling of worry or interest about something</div>
+          <div class="m-line"><b>h.</b> to come out of or appear from something</div>
+          <div class="m-line"><b>i.</b> increasing very quickly in number</div>
+          <div class="m-line"><b>j.</b> to give someone a job</div>
+          <div class="m-line"><b>k.</b> to officially make someone pay money as a punishment</div>
+          <div class="m-line"><b>l.</b> on a large scale; in many places or ways</div>
+          <div class="m-line"><b>m.</b> almost never; not often</div>
+          <div class="m-line"><b>n.</b> to be the same as or similar to something</div>
+          <div class="m-line"><b>o.</b> the act of damaging something completely</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 2 -->
+  <section class="part">
+    <div class="part-head">
+      <span class="part-num">PART 2</span>
+      <h2 class="part-title">True / False Comprehension</h2>
+    </div>
+    <p class="part-instructions">Decide whether each statement is True (T) or False (F).</p>
+    <div id="tfList">
+      <div class="tf-item" id="tf-row-0"><div class="label"><span class="num">1.</span>To undergo an operation means to experience or receive it.</div><div class="tf-toggle" data-idx="0"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-1"><div class="label"><span class="num">2.</span>To carry out a plan means to complete or perform it.</div><div class="tf-toggle" data-idx="1"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-2"><div class="label"><span class="num">3.</span>If documents are scrutinised, they are examined very carefully.</div><div class="tf-toggle" data-idx="2"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-3"><div class="label"><span class="num">4.</span>To suppress information means to make it widely available to everyone.</div><div class="tf-toggle" data-idx="3"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-4"><div class="label"><span class="num">5.</span>If someone speaks bluntly, they speak in a direct and honest way.</div><div class="tf-toggle" data-idx="4"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-5"><div class="label"><span class="num">6.</span>A dense forest has many trees growing closely together.</div><div class="tf-toggle" data-idx="5"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-6"><div class="label"><span class="num">7.</span>Absence means the state of being present.</div><div class="tf-toggle" data-idx="6"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-7"><div class="label"><span class="num">8.</span>To triple something means to make it three times larger.</div><div class="tf-toggle" data-idx="7"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-8"><div class="label"><span class="num">9.</span>To advertise a product means to promote it to the public.</div><div class="tf-toggle" data-idx="8"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-9"><div class="label"><span class="num">10.</span>An average result is typical or ordinary compared with others.</div><div class="tf-toggle" data-idx="9"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-10"><div class="label"><span class="num">11.</span>If a company carries out research, it ignores the research completely.</div><div class="tf-toggle" data-idx="10"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-11"><div class="label"><span class="num">12.</span>A dense population means that people are spread very far apart.</div><div class="tf-toggle" data-idx="11"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-12"><div class="label"><span class="num">13.</span>In the absence of evidence, there is no evidence available.</div><div class="tf-toggle" data-idx="12"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-13"><div class="label"><span class="num">14.</span>If prices triple, they become three times higher than before.</div><div class="tf-toggle" data-idx="13"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+      <div class="tf-item" id="tf-row-14"><div class="label"><span class="num">15.</span>Companies advertise products because they want fewer people to know about them.</div><div class="tf-toggle" data-idx="14"><button type="button" data-val="true">T</button><button type="button" data-val="false">F</button></div></div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="cta submit" id="submitBtn">Check Answers</button>
+    <button class="cta reset" id="resetBtn">Reset</button>
+  </div>
+
+</div>
+
+<script>
+// ----- DATA (used only for scoring) -----
+const words = [
+  "Intact","Booming population","Concern","Impose a fine","Outage",
+  "Destruction","Rarely","Preserve","Emerge from","Match",
+  "Involvement","Extensively","Exploitation","Employ","Exceed"
+];
+
+// correct mapping word-index(0-based) -> meaning letter
+const correctMatch = ["e","i","g","k","f","o","m","a","h","n","c","l","b","j","d"];
+
+const tfStatements = [
+  {answer:true},{answer:true},{answer:true},{answer:false},{answer:true},
+  {answer:true},{answer:false},{answer:true},{answer:true},{answer:true},
+  {answer:false},{answer:false},{answer:true},{answer:true},{answer:false}
+];
+
+const tfList = document.getElementById('tfList');
+tfList.addEventListener('click', (e)=>{
+  if(e.target.tagName === 'BUTTON'){
+    const group = e.target.parentElement;
+    group.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));
+    e.target.classList.add('selected');
+  }
+});
+
+// ----- SCORING -----
+document.getElementById('submitBtn').addEventListener('click', ()=>{
+  let correct = 0;
+  const total = words.length + tfStatements.length;
+
+  words.forEach((w,i)=>{
+    const sel = document.getElementById('w-sel-'+i);
+    const row = document.getElementById('w-row-'+i);
+    row.classList.remove('correct','incorrect');
+    if(sel.value === correctMatch[i]){
+      row.classList.add('correct');
+      correct++;
+    } else if(sel.value !== ""){
+      row.classList.add('incorrect');
+    }
+  });
+
+  tfStatements.forEach((s,i)=>{
+    const row = document.getElementById('tf-row-'+i);
+    row.classList.remove('correct','incorrect');
+    const selectedBtn = row.querySelector('button.selected');
+    if(selectedBtn){
+      const val = selectedBtn.dataset.val === 'true';
+      if(val === s.answer){
+        row.classList.add('correct');
+        correct++;
+      } else {
+        row.classList.add('incorrect');
+      }
+    }
+  });
+
+  const pct = Math.round((correct/total)*100);
+  document.getElementById('scoreBig').textContent = correct + ' / ' + total;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('scoreBanner').classList.add('show');
+  document.getElementById('scoreBanner').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('select').forEach(s=>s.value="");
+  document.querySelectorAll('.tf-toggle button').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.word-item, .tf-item').forEach(el=>el.classList.remove('correct','incorrect'));
+  document.getElementById('scoreBanner').classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+</script>
+</body>
+</html>
